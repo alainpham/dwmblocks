@@ -59,6 +59,10 @@ bar-date() {
 	echo $(date '+%Y-%d-%m %T %Z')
 }
 
+bar-wttr() {
+	echo $(curl -s wttr.in?format=2)
+}
+
 command=$1
 
 if [ "$command" = "network" ]; then
@@ -71,6 +75,8 @@ elif [ "$command" = "memory" ]; then
 	bar-memory
 elif [ "$command" = "date" ]; then
 	bar-date
+elif [ "$command" = "wttr" ]; then
+	bar-wttr
 else
 	echo "Invalid command"
 fi
