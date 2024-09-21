@@ -1,0 +1,70 @@
+#!/bin/bash
+bar-net() {
+	state=""
+	if [ -f /sys/class/net/e*/operstate ]; then
+		eth=$(cat /sys/class/net/e*/operstate)
+	fi
+
+	if [ -f /sys/class/net/w*/operstate ]; then
+		wifi=$(cat /sys/class/net/w*/operstate)
+	fi
+
+	if [ -f /sys/class/net/tun*/operstate ]; then
+		tun=$(cat /sys/class/net/tun*/operstate)
+	fi
+	
+	if [ "$eth" = "up" ]; then
+		state=$state"󰈁"
+	fi
+	
+	if [ "$wifi" = "up" ]; then
+		state=$state"󰖩"
+	fi
+	
+	if [ -n "$tun" ]; then
+		state=$state""
+	fi
+
+	internet_access_up=$(curl -sLI -o /dev/null -w "%{http_code}" --max-time 8 google.com)
+
+	if [ "$internet_access_up" = "200" ]; then
+		state=$state"󰖟"
+	else
+		state=$state""
+	fi
+
+	echo $state
+}
+
+bar-batt() {
+	battery=$(cat /sys/class/power_supply/BAT0/capacity)
+	status=$(cat /sys/class/power_supply/BAT0/status)
+	
+	if [ "$status" = "Charging" ]; then
+		echo "󰂏 $battery%"
+	else
+		echo "󰂌 $battery%"
+	fi
+}
+
+bar-temp() {
+	echo ""$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
+}
+
+bar-memory() {
+	echo "󰏦"$(free -h | awk '/Mem/ {print $3}')
+}
+
+command=$1
+
+if [ "$command" = "net" ]; then
+	bar-net 
+elif [ "$command" = "batt" ]; then
+	bar-batt
+elif [ "$command" = "temp" ]; then
+	bar-temp
+elif [ "$command" = "memory" ]; then
+	bar-memory
+else
+	echo "Invalid command"
+fi
