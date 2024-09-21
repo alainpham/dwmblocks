@@ -1,5 +1,5 @@
 #!/bin/bash
-bar-net() {
+bar-network() {
 	state=""
 	if [ -f /sys/class/net/e*/operstate ]; then
 		eth=$(cat /sys/class/net/e*/operstate)
@@ -36,7 +36,7 @@ bar-net() {
 	echo $state
 }
 
-bar-batt() {
+bar-battery() {
 	battery=$(cat /sys/class/power_supply/BAT0/capacity)
 	status=$(cat /sys/class/power_supply/BAT0/status)
 	
@@ -47,7 +47,7 @@ bar-batt() {
 	fi
 }
 
-bar-temp() {
+bar-cputemp() {
 	echo ""$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
 }
 
@@ -55,16 +55,22 @@ bar-memory() {
 	echo "󰏦"$(free -h | awk '/Mem/ {print $3}')
 }
 
+bar-date() {
+	echo $(date '+%Y-%d-%m %T %Z')
+}
+
 command=$1
 
-if [ "$command" = "net" ]; then
-	bar-net 
-elif [ "$command" = "batt" ]; then
-	bar-batt
-elif [ "$command" = "temp" ]; then
-	bar-temp
+if [ "$command" = "network" ]; then
+	bar-network 
+elif [ "$command" = "battery" ]; then
+	bar-battery
+elif [ "$command" = "cputemp" ]; then
+	bar-cputemp
 elif [ "$command" = "memory" ]; then
 	bar-memory
+elif [ "$command" = "date" ]; then
+	bar-date
 else
 	echo "Invalid command"
 fi
