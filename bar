@@ -67,14 +67,14 @@ bar-volume() {
 	output=""
 	speakervol=$(pactl get-sink-volume cspeakers)
 	if [ $? -ne 0 ]; then
-		output = "󰖁 N/A"
+		output="󰓄 N/A"
 	else
 		muted=$(pactl get-sink-mute cspeakers | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
-			output="󰖁 Muted"
+			output="󰓄 Muted"
 		else
 			volume=$(echo $speakervol | head -n 1 | awk '{print $5}')
-			output="󰕾 $volume"
+			output="󰓃 $volume"
 		fi
 	fi
 
