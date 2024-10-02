@@ -93,7 +93,7 @@ bar-volume() {
 		output=$output" "
 	fi
 
-	if [ $notconfigured -ne 0 ]; then
+	if [ $notconfigured -eq 0 ]; then
 
 		mic01muted=$(pactl get-source-mute mic01-processed | awk '{print $2}')
 		if [ "$mic01muted" = "yes" ]; then
