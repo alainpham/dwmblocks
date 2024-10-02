@@ -80,16 +80,16 @@ bar-volume() {
 
 	desktopmuted=$(pactl get-sink-mute from-desktop | awk '{print $2}')
 	if [ "$desktopmuted" = "yes" ]; then
-		output=$output
+		output=$output" 󰬅"
 	else
-		output=$output" "
+		output=$output" 󰎇"
 	fi
 
-	caller=$(pactl get-sink-mute from-caller | awk '{print $2}')
-	if [ "$desktopmuted" = "yes" ]; then
-		output=$output
+	callermuted=$(pactl get-sink-mute from-caller | awk '{print $2}')
+	if [ "$callermuted" = "yes" ]; then
+		output=$output" 󰬅"
 	else
-		output=$output" "
+		output=$output" "
 	fi
 
 	echo $output
