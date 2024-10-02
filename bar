@@ -65,10 +65,10 @@ bar-wttr() {
 
 bar-volume() {
 	speakervol=$(pactl get-sink-volume cspeakers)
-	muted=$(pactl get-sink-mute cspeakers | awk '{print $2}')
 	if [ $? -ne 0 ]; then
 		echo "󰖁 N/A"
 	else
+		muted=$(pactl get-sink-mute cspeakers | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
 			echo "󰖁 Muted"
 		else
