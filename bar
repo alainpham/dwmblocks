@@ -89,7 +89,7 @@ bar-volume() {
 	if [ "$desktopmuted" = "yes" ]; then
 		output=$output
 	else
-		output=$output" 󰄴"
+		output=$output" "
 	fi
 
 	echo $output
