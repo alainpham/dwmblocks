@@ -1,8 +1,8 @@
 //Modify this file to change what commands output to your statusbar, and recompile using the make command.
 static const Block blocks[] = {
     /*Icon*/    /*Command*/         /*Update Interval*/ /*Update Signal*/
-    {"",        "bar wttr",         3600,               0},
-    {"",        "bar volume",       0,                  10},
+    {"",        "bar wttr",         120,                11},
+    {"",        "bar volume",       10,                 10},
     {"",        "bar memory",       5,                  0},
     {"",        "bar cputemp",      5,                  0},
     {"",        "bar battery",      60,                 0},
