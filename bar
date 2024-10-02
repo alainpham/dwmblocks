@@ -64,18 +64,35 @@ bar-wttr() {
 }
 
 bar-volume() {
+	output=""
 	speakervol=$(pactl get-sink-volume cspeakers)
 	if [ $? -ne 0 ]; then
-		echo "󰖁 N/A"
+		output = "󰖁 N/A"
 	else
 		muted=$(pactl get-sink-mute cspeakers | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
-			echo "󰖁 Muted"
+			output = "󰖁 Muted"
 		else
 			volume=$(echo $speakervol | head -n 1 | awk '{print $5}')
-			echo "󰕾 $volume"
+			output = "󰕾 $volume"
 		fi
 	fi
+
+	desktopmuted=$(pactl get-sink-mute from-desktop | awk '{print $2}')
+	if [ "$desktopmuted" = "yes" ]; then
+		output = $output" "
+	else
+		output = $output" 󰄴"
+	fi
+
+	caller=$(pactl get-sink-mute from-caller | awk '{print $2}')
+	if [ "$desktopmuted" = "yes" ]; then
+		output = $output" "
+	else
+		output = $output" 󰄴"
+	fi
+
+	echo $output
 }
 
 command=$1
