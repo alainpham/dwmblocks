@@ -92,14 +92,14 @@ bar-volume() {
 		output=$output" "
 	fi
 
-	mic01muted=$(pactl pactl get-source-mute mic01-processed | awk '{print $2}')
+	mic01muted=$(pactl get-source-mute mic01-processed | awk '{print $2}')
 	if [ "$mic01muted" = "yes" ]; then
 		output=$output" 󰬅"
 	else
 		output=$output" "
 	fi
 	
-	mic02muted=$(pactl pactl get-source-mute mic02-processed | awk '{print $2}')
+	mic02muted=$(pactl get-source-mute mic02-processed | awk '{print $2}')
 	if [ "$mic02muted" = "yes" ]; then
 		output=$output" 󰬅"
 	else
