@@ -56,7 +56,7 @@ bar-memory() {
 }
 
 bar-date() {
-	echo $(date '+%Y-%d-%m %T %Z')
+	echo $(date '+%Y-%m-%d %T %Z')
 }
 
 bar-wttr() {
