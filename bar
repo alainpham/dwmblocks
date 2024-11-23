@@ -1,27 +1,31 @@
 #!/bin/bash
 bar-network() {
 	state=""
-	if [ -f /sys/class/net/e*/operstate ]; then
+	if  compgen -G "/sys/class/net/e*"> /dev/null ; then
 		eth=$(cat /sys/class/net/e*/operstate)
+	else
+		echo "no eth found"
 	fi
 
-	if [ -f /sys/class/net/w*/operstate ]; then
+	if compgen -G "/sys/class/net/w*"> /dev/null; then
 		wifi=$(cat /sys/class/net/w*/operstate)
 	fi
 
-	if [ -f /sys/class/net/tun*/operstate ]; then
+	if compgen -G "/sys/class/net/tun*"> /dev/null; then
 		tun=$(cat /sys/class/net/tun*/operstate)
 	fi
 	
-	if [ "$eth" = "up" ]; then
+	if [[ "$eth" == *"up"* ]]; then
 		state=$state"󰈁"
+	else
+		echo $eth
 	fi
 	
-	if [ "$wifi" = "up" ]; then
+	if [[ "$wifi" == *"up"* ]]; then
 		state=$state"󰖩"
 	fi
 	
-	if [ -n "$tun" ]; then
+	if [[ "$tun" == *"up"* ]]; then
 		state=$state""
 	fi
 
