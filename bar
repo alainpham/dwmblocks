@@ -3,8 +3,6 @@ bar-network() {
 	state=""
 	if  compgen -G "/sys/class/net/e*"> /dev/null ; then
 		eth=$(cat /sys/class/net/e*/operstate)
-	else
-		echo "no eth found"
 	fi
 
 	if compgen -G "/sys/class/net/w*"> /dev/null; then
@@ -17,8 +15,6 @@ bar-network() {
 	
 	if [[ "$eth" == *"up"* ]]; then
 		state=$state"󰈁"
-	else
-		echo $eth
 	fi
 	
 	if [[ "$wifi" == *"up"* ]]; then
