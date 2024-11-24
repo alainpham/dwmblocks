@@ -56,7 +56,7 @@ bar-memory() {
 }
 
 bar-date() {
-	echo $(date '+%Y-%m-%d %T %Z')
+	echo $(date '+%m-%d %T %Z')
 }
 
 bar-wttr() {
@@ -94,7 +94,6 @@ bar-volume() {
 	fi
 
 	if [ $notconfigured -eq 0 ]; then
-
 		mic01muted=$(pactl get-source-mute mic01-processed | awk '{print $2}')
 		if [ "$mic01muted" = "yes" ]; then
 			output=$output" 󰬅"
@@ -108,6 +107,9 @@ bar-volume() {
 		else
 			output=$output" "
 		fi
+		tocallervol=$(pactl get-source-volume to-caller)
+		callervolume=$(echo $tocallervol | head -n 1 | awk '{print $5}')
+		output="$output $callervolume"
 	fi
 	echo $output
 }
