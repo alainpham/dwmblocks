@@ -60,7 +60,7 @@ bar-date() {
 }
 
 bar-wttr() {
-	echo $(curl -s wttr.in?format=2)
+	echo $(curl -s "wttr.in?format=2&location=Poissy")
 }
 
 bar-volume() {
