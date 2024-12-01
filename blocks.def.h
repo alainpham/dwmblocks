@@ -8,6 +8,8 @@ static const Block blocks[] = {
     {"",        "bar battery",      60,                 0},
     {"",        "bar network",      10,                 0},
     {"",        "bar date",         1,                  0},
+    {"",        "bar notifs",       0,                  9},
+
 };
 
 //sets delimiter between status commands. NULL character ('\0') means no delimiter.

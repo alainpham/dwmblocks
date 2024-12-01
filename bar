@@ -13,6 +13,14 @@ bar-network() {
 		tun=$(cat /sys/class/net/tun*/operstate)
 	fi
 	
+	internet_access_up=$(curl -sLI -o /dev/null -w "%{http_code}" --max-time 8 google.com)
+
+	if [ "$internet_access_up" = "200" ]; then
+		state=$state"🌐"
+	else
+		state=$state"📵"
+	fi
+
 	if [[ "$eth" == *"up"* ]]; then
 		state=$state"󰈁"
 	fi
@@ -25,30 +33,33 @@ bar-network() {
 		state=$state""
 	fi
 
-	internet_access_up=$(curl -sLI -o /dev/null -w "%{http_code}" --max-time 8 google.com)
-
-	if [ "$internet_access_up" = "200" ]; then
-		state=$state"󰖟"
-	else
-		state=$state""
-	fi
-
 	echo $state
 }
 
 bar-battery() {
 	battery=$(cat /sys/class/power_supply/BAT0/capacity)
 	status=$(cat /sys/class/power_supply/BAT0/status)
-	
-	if [ "$status" = "Charging" ]; then
-		echo "󰂏 $battery%"
-	else
-		echo "󰂌 $battery%"
+	pluggedin=$(cat /sys/class/power_supply/AC/online)
+
+	if [ "$pluggedin" = "1" ]; then
+		echo -n "🔌"
 	fi
+
+	if [ "$status" = "Discharging" ]; then
+		if [ "$battery" -gt 20 ]; then
+			echo -n "🔋"
+		else
+			echo -n "🪫"
+		fi
+	fi
+	if [ "$status" = "Charging" ]; then
+		echo -n "⚡️"
+	fi
+	echo -n "$battery%"
 }
 
 bar-cputemp() {
-	echo ""$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
+	echo "🌡️"$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
 }
 
 bar-memory() {
@@ -114,6 +125,15 @@ bar-volume() {
 	echo $output
 }
 
+notifs(){
+	notifispaused=$(dunstctl is-paused)
+	if [ "$notifispaused" = "true" ]; then
+		echo "🔕"
+	else
+		echo "🔔"
+	fi
+}
+
 command=$1
 
 if [ "$command" = "network" ]; then
@@ -130,6 +150,8 @@ elif [ "$command" = "wttr" ]; then
 	bar-wttr
 elif [ "$command" = "volume" ]; then
 	bar-volume
+elif [ "$command" = "notifs" ]; then
+	notifs
 else
 	echo "Invalid command"
 fi
