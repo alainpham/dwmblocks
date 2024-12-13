@@ -76,12 +76,12 @@ bar-wttr() {
 
 bar-volume() {
 	output=""
-	speakervol=$(pactl get-sink-volume cspeakers)
+	speakervol=$(pactl get-sink-volume @DEFAULT_SINK@)
 	notconfigured=$?
 	if [ $notconfigured -ne 0 ]; then
 		output="󰓄 N/A"
 	else
-		muted=$(pactl get-sink-mute cspeakers | awk '{print $2}')
+		muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
 			output="󰓄 Muted"
 		else
@@ -118,9 +118,9 @@ bar-volume() {
 		else
 			output=$output" "
 		fi
-		tocallervol=$(pactl get-source-volume to-caller)
-		callervolume=$(echo $tocallervol | head -n 1 | awk '{print $5}')
-		output="$output $callervolume"
+	# 	tocallervol=$(pactl get-source-volume to-caller)
+	# 	callervolume=$(echo $tocallervol | head -n 1 | awk '{print $5}')
+	# 	output="$output $callervolume"
 	fi
 	echo $output
 }
