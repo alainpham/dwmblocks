@@ -76,12 +76,18 @@ bar-wttr() {
 
 bar-volume() {
 	output=""
-	speakervol=$(pactl get-sink-volume @DEFAULT_SINK@)
+
+	cspeaker_module_id=$(pactl list short modules | grep "sink_name=from-desktop" | awk '{print $1}')
+	cspeaker_sink_input_id=$(pactl -f json list sink-inputs | jq -r ".[] | select(.owner_module == \"$cspeaker_module_id\") | .sink")
+
+	speakervol=$(pactl get-sink-volume $cspeaker_sink_input_id)
+
+
 	notconfigured=$?
 	if [ $notconfigured -ne 0 ]; then
 		output="󰓄 N/A"
 	else
-		muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+		muted=$(pactl get-sink-mute $cspeaker_sink_input_id | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
 			output="󰓄 Muted"
 		else
