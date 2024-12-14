@@ -157,6 +157,11 @@ bar-volume() {
 		output="$output/INT"
 	fi
 
+	parecup=$(ps aux | grep -E  "parec.*desktop|parec.*mic01|parec.*mic02" | wc -l)
+	if [ $parecup -gt 3 ]; then
+		output="$output "
+	fi
+
 	echo $output
 }
 
