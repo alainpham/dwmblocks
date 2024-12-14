@@ -77,22 +77,34 @@ bar-wttr() {
 bar-volume() {
 	output=""
 
+	speaker_usb2i2=alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y8QWAQ69B26B58-00.analog-stereo
+	speaker_usbzonevibe=alsa_output.usb-Logitech_Zone_Vibe_125_2216MH00LMF8-00.analog-stereo
+	speaker_internal=alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink
+
+	mic_usb2i2=alsa_input.usb-Focusrite_Scarlett_2i2_USB_Y8QWAQ69B26B58-00.analog-stereo
+	mic_usbzonevibe=alsa_input.usb-Logitech_Zone_Vibe_125_2216MH00LMF8-00.mono-fallback
+	mic_internal=alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_6__source
+
 	cspeaker_module_id=$(pactl list short modules | grep "sink_name=from-desktop" | awk '{print $1}')
 	cspeaker_sink_input_id=$(pactl -f json list sink-inputs | jq -r ".[] | select(.owner_module == \"$cspeaker_module_id\") | .sink")
+	cspeaker_name=$(pactl -f json list sinks | jq -r ".[] | select(.index == $cspeaker_sink_input_id ) | .name ")
+	
+	mic_module_id=$(pactl list short modules | grep "source_name=mic01-processed" | awk '{print $1}')
+	mic_source_input_id=$(pactl -f json list source-outputs | jq -r ".[] | select(.owner_module == \"$mic_module_id\") | .source")
+	mic_name=$(pactl -f json list sources | jq -r ".[] | select(.index == $mic_source_input_id ) | .name ")
 
 	speakervol=$(pactl get-sink-volume $cspeaker_sink_input_id)
-
-
 	notconfigured=$?
+
 	if [ $notconfigured -ne 0 ]; then
-		output="󰓄 N/A"
+		output=$output"󰓄 N/A"
 	else
 		muted=$(pactl get-sink-mute $cspeaker_sink_input_id | awk '{print $2}')
 		if [ "$muted" = "yes" ]; then
-			output="󰓄 Muted"
+			output=$output"󰓄 Muted"
 		else
 			volume=$(echo $speakervol | head -n 1 | awk '{print $5}')
-			output="󰓃 $volume"
+			output=$output"󰓃 $volume"
 		fi
 	fi
 
@@ -128,6 +140,23 @@ bar-volume() {
 	# 	callervolume=$(echo $tocallervol | head -n 1 | awk '{print $5}')
 	# 	output="$output $callervolume"
 	fi
+
+	if [ "$mic_name" = "$mic_usb2i2" ]; then
+		output="$output 2I2"
+	elif [ "$mic_name" = "$mic_usbzonevibe" ]; then
+		output="$output ZVI"
+	elif [ "$mic_name" = "$mic_internal" ]; then
+		output="$output INT"
+	fi
+
+	if [ "$cspeaker_name" = "$speaker_usb2i2" ]; then
+		output="$output/2I2"
+	elif [ "$cspeaker_name" = "$speaker_usbzonevibe" ]; then
+		output="$output/ZVI"
+	elif [ "$cspeaker_name" = "$speaker_internal" ]; then
+		output="$output/INT"
+	fi
+
 	echo $output
 }
 
