@@ -77,13 +77,7 @@ bar-wttr() {
 bar-volume() {
 	output=""
 
-	speaker_usb2i2=alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y8QWAQ69B26B58-00.analog-stereo
-	speaker_usbzonevibe=alsa_output.usb-Logitech_Zone_Vibe_125_2216MH00LMF8-00.analog-stereo
-	speaker_internal=alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink
-
-	mic_usb2i2=alsa_input.usb-Focusrite_Scarlett_2i2_USB_Y8QWAQ69B26B58-00.analog-stereo
-	mic_usbzonevibe=alsa_input.usb-Logitech_Zone_Vibe_125_2216MH00LMF8-00.mono-fallback
-	mic_internal=alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_6__source
+	source /usr/local/bin/asndenv
 
 	cspeaker_module_id=$(pactl list short modules | grep "sink_name=from-desktop" | awk '{print $1}')
 	cspeaker_sink_input_id=$(pactl -f json list sink-inputs | jq -r ".[] | select(.owner_module == \"$cspeaker_module_id\") | .sink")
@@ -141,20 +135,19 @@ bar-volume() {
 	# 	output="$output $callervolume"
 	fi
 
-	if [ "$mic_name" = "$mic_usb2i2" ]; then
-		output="$output 2I2"
-	elif [ "$mic_name" = "$mic_usbzonevibe" ]; then
-		output="$output ZVI"
-	elif [ "$mic_name" = "$mic_internal" ]; then
-		output="$output INT"
+	# set mic name
+	shortmicname=${shortsoundnames[${mic_name}]}
+	if [ -z "$shortmicname" ]; then
+		output="$output OTH"
+	else
+		output="$output $shortmicname"
 	fi
 
-	if [ "$cspeaker_name" = "$speaker_usb2i2" ]; then
-		output="$output/2I2"
-	elif [ "$cspeaker_name" = "$speaker_usbzonevibe" ]; then
-		output="$output/ZVI"
-	elif [ "$cspeaker_name" = "$speaker_internal" ]; then
-		output="$output/INT"
+	shortspeakername=${shortsoundnames[${cspeaker_name}]}
+	if [ -z "$shortspeakername" ]; then
+		output="$output/OTH"
+	else
+		output="$output/$shortspeakername"
 	fi
 
 	parecup=$(ps aux | grep -E  "parec.*desktop|parec.*mic01|parec.*mic02" | wc -l)
