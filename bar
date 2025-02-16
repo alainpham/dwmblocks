@@ -16,9 +16,9 @@ bar-network() {
 	internet_access_up=$(curl -sLI -o /dev/null -w "%{http_code}" --max-time 8 google.com)
 
 	if [ "$internet_access_up" = "200" ]; then
-		state=$state"🌐"
+		state=$state"󰖟"
 	else
-		state=$state"📵"
+		state=$state""
 	fi
 
 	if [[ "$eth" == *"up"* ]]; then
@@ -46,14 +46,14 @@ bar-battery() {
 	pluggedin=$(cat /sys/class/power_supply/AC/online)
 
 	if [ "$pluggedin" = "1" ]; then
-		echo -n "🔌"
+		echo -n ""
 	fi
 
 	if [ "$status" = "Discharging" ]; then
 		if [ "$battery" -gt 20 ]; then
-			echo -n "🔋"
+			echo -n "󰂁"
 		else
-			echo -n "🪫"
+			echo -n "󰁻"
 		fi
 	fi
 	if [ "$status" = "Charging" ]; then
@@ -66,7 +66,7 @@ bar-cputemp() {
 
 	temp=$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
 	if [ -n "$temp" ]; then
-		echo "🌡️"$temp
+		echo ""$temp
 	fi
 	
 }
@@ -161,7 +161,7 @@ bar-volume() {
 
 	parecup=$(ps aux | grep -E  "parec.*desktop|parec.*mic01|parec.*mic02" | wc -l)
 	if [ $parecup -gt 3 ]; then
-		output="$output "
+		output="$output "
 	fi
 
 	echo $output
@@ -169,12 +169,11 @@ bar-volume() {
 
 notifs(){
 	if pgrep -x "dunst" > /dev/null; then
-		echo "Dunst is not running"
 		notifispaused=$(dunstctl is-paused)
 		if [ "$notifispaused" = "true" ]; then
-			echo "🔕"
+			echo ""
 		else
-			echo "🔔"
+			echo ""
 		fi
 	fi
 }
