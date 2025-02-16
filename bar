@@ -97,6 +97,7 @@ bar-volume() {
 	mic_name=$(pactl -f json list sources | jq -r ".[] | select(.index == $mic_source_input_id ) | .name ")
 
 	speakervol=$(pactl get-sink-volume $cspeaker_sink_input_id)
+	micvol=$(pactl get-source-volume $mic_source_input_id)
 	notconfigured=$?
 
 	if [ $notconfigured -ne 0 ]; then
@@ -139,6 +140,16 @@ bar-volume() {
 		else
 			output=$output" "
 		fi
+
+		
+		mvolume=$(echo $micvol | head -n 1 | awk '{print $5}')
+		if [ "$mvolume" = "100%" ]; then
+			output="$output 󰡴"
+		else
+			output="$output 󰡳"
+		fi
+
+		
 	# 	tocallervol=$(pactl get-source-volume to-caller)
 	# 	callervolume=$(echo $tocallervol | head -n 1 | awk '{print $5}')
 	# 	output="$output $callervolume"
