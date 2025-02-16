@@ -37,6 +37,10 @@ bar-network() {
 }
 
 bar-battery() {
+	if ! compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
+		return
+	fi
+	
 	battery=$(cat /sys/class/power_supply/BAT0/capacity)
 	status=$(cat /sys/class/power_supply/BAT0/status)
 	pluggedin=$(cat /sys/class/power_supply/AC/online)
@@ -59,7 +63,12 @@ bar-battery() {
 }
 
 bar-cputemp() {
-	echo "🌡️"$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
+
+	temp=$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
+	if [ -n "$temp" ]; then
+		echo "🌡️"$temp
+	fi
+	
 }
 
 bar-memory() {
@@ -159,11 +168,14 @@ bar-volume() {
 }
 
 notifs(){
-	notifispaused=$(dunstctl is-paused)
-	if [ "$notifispaused" = "true" ]; then
-		echo "🔕"
-	else
-		echo "🔔"
+	if pgrep -x "dunst" > /dev/null; then
+		echo "Dunst is not running"
+		notifispaused=$(dunstctl is-paused)
+		if [ "$notifispaused" = "true" ]; then
+			echo "🔕"
+		else
+			echo "🔔"
+		fi
 	fi
 }
 
