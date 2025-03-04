@@ -64,9 +64,9 @@ bar-battery() {
 
 bar-cputemp() {
 
-	temp=$(sensors | awk '/Package id 0/ {print $4}' | grep -oP '\+\K[0-9]+\.[0-9]+..')
+	temp=$( sensors -j | jq '.["coretemp-isa-0000"]["Package id 0"].temp1_input')
 	if [ -n "$temp" ]; then
-		echo ""$temp
+		echo ""$temp"°C"
 	fi
 	
 }
