@@ -65,6 +65,9 @@ bar-battery() {
 bar-cputemp() {
 
 	temp=$( sensors -j | jq '.["coretemp-isa-0000"]["Package id 0"].temp1_input')
+	if [ "$temp" == "null" ]; then
+		temp=$(sensors -j | jq '.["coretemp-isa-0000"]| to_entries | .[1].value| to_entries | map(select(.key | test("^temp[0-9]+_input$"))) | .[0].value ')
+	fi
 	if [ -n "$temp" ]; then
 		echo ""$temp"°C"
 	fi
