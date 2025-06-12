@@ -63,18 +63,29 @@ bar-battery() {
 }
 
 bar-cputemp() {
+	payload=$(sensors -j 2>/dev/null)
+	
+	tempval=$(echo $payload | jq -e '.["coretemp-isa-0000"]["Package id 0"].temp1_input' 2>/dev/null)
+	exitcode=$?
+	if [ "$exitcode" == 0 ]; then
+		output=$(printf "%.0f" "$tempval")
+	fi
+	
+	tempval=$(echo $payload | jq -e '.["thinkpad-isa-0000"].CPU.temp1_input' 2>/dev/null)
+	exitcode=$?
+	if [ "$exitcode" == 0 ]; then
+		output=$(printf "%.0f" "$tempval")
+	fi
 
-	temp=$( sensors -j 2>/dev/null | jq '.["coretemp-isa-0000"]["Package id 0"].temp1_input | round')
-	if [ "$temp" == "null" ]; then
-			temp=$(sensors -j 2>/dev/null | jq '.["thinkpad-isa-0000"].CPU.temp1_input | round')
-	fi
-	if [ "$temp" == "null" ]; then
-			temp=$(sensors -j 2>/dev/null | jq '.["coretemp-isa-0000"]| to_entries | .[1].value| to_entries | map(select(.key | test("^temp[0-9]+_input$"))) | .[0].value ')
-	fi
-	if [ -n "$temp" ]; then
-			echo ""$temp"°C"
+	tempval=$(echo $payload | jq -e '.["coretemp-isa-0000"]| to_entries | .[1].value| to_entries | map(select(.key | test("^temp[0-9]+_input$"))) | .[0].value' 2>/dev/null)
+	exitcode=$?
+	if [ "$exitcode" == 0 ]; then
+		output=$(printf "%.0f" "$tempval")
 	fi
 
+	if [ -n "$output" ]; then
+			echo ""$output"°C"
+	fi
 	
 }
 
