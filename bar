@@ -64,13 +64,17 @@ bar-battery() {
 
 bar-cputemp() {
 
-	temp=$( sensors -j | jq '.["coretemp-isa-0000"]["Package id 0"].temp1_input')
+	temp=$( sensors -j 2>/dev/null | jq '.["coretemp-isa-0000"]["Package id 0"].temp1_input | round')
 	if [ "$temp" == "null" ]; then
-		temp=$(sensors -j | jq '.["coretemp-isa-0000"]| to_entries | .[1].value| to_entries | map(select(.key | test("^temp[0-9]+_input$"))) | .[0].value ')
+			temp=$(sensors -j 2>/dev/null | jq '.["thinkpad-isa-0000"].CPU.temp1_input | round')
+	fi
+	if [ "$temp" == "null" ]; then
+			temp=$(sensors -j 2>/dev/null | jq '.["coretemp-isa-0000"]| to_entries | .[1].value| to_entries | map(select(.key | test("^temp[0-9]+_input$"))) | .[0].value ')
 	fi
 	if [ -n "$temp" ]; then
-		echo ""$temp"°C"
+			echo ""$temp"°C"
 	fi
+
 	
 }
 
