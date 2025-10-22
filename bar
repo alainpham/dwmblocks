@@ -37,29 +37,51 @@ bar-network() {
 }
 
 bar-battery() {
-	if ! compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
-		return
-	fi
 	
-	battery=$(cat /sys/class/power_supply/BAT0/capacity)
-	status=$(cat /sys/class/power_supply/BAT0/status)
-	pluggedin=$(cat /sys/class/power_supply/AC/online)
+	output=""
+	if compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
+	
+		battery=$(cat /sys/class/power_supply/BAT0/capacity)
+		status=$(cat /sys/class/power_supply/BAT0/status)
+		pluggedin=$(cat /sys/class/power_supply/AC/online)
 
-	if [ "$pluggedin" = "1" ]; then
-		echo -n ""
+		if [ "$pluggedin" = "1" ]; then
+			output=$output""
+		fi
+		
+		if [ "$status" = "Discharging" ]; then
+			if [ "$battery" -gt 66 ]; then
+				output=$output"󱊣"
+			elif [ "$battery" -gt 33 ]; then
+				output=$output"󱊢"
+			elif [ "$battery" -gt 20 ]; then
+				output=$output"󱊡"
+			else
+				dunstify -u critical 'BATTERY CRITICAL'
+				output=$output"󰂎"
+			fi
+		fi
+		
+		if [ "$status" = "Charging" ]; then
+			output=$output"󱐋"
+		fi
+		output="$output${battery}%"
 	fi
 
-	if [ "$status" = "Discharging" ]; then
-		if [ "$battery" -gt 20 ]; then
-			echo -n "󰂁"
+	hsexists=$(upower -e | grep headset | head -n 1)
+	if [ -n "$hsexists" ]; then
+		headsetpower=$(upower -i "$hsexists" | grep percentage | awk '{print $2}')
+		headsetpower=${headsetpower%\%}
+		if [ "$headsetpower" -lt 21 ]; then
+			dunstify -u critical 'BATTERY CRITICAL'
+			output="$output 󰋎${headsetpower}%"
 		else
-			echo -n "󰁻"
+			output="$output 󰋎${headsetpower}%"
 		fi
 	fi
-	if [ "$status" = "Charging" ]; then
-		echo -n "⚡️"
-	fi
-	echo -n "$battery%"
+		
+	echo -n "$output"
+
 }
 
 bar-cputemp() {
