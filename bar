@@ -43,7 +43,7 @@ bar-battery() {
 	
 		battery=$(cat /sys/class/power_supply/BAT0/capacity)
 		status=$(cat /sys/class/power_supply/BAT0/status)
-		pluggedin=$(cat /sys/class/power_supply/AC/online)
+		pluggedin=$(cat /sys/class/power_supply/A*/online)
 
 		if [ "$pluggedin" = "1" ]; then
 			output=$output""
