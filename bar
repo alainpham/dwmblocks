@@ -1,15 +1,14 @@
 #!/bin/bash
 bar-network() {
 	state=""
-	if  compgen -G "/sys/class/net/e*"> /dev/null ; then
+	if printf "%s" /sys/class/net/e* | grep -qv '\*'; then
 		eth=$(cat /sys/class/net/e*/operstate)
 	fi
-
-	if compgen -G "/sys/class/net/w*"> /dev/null; then
+	if printf "%s" /sys/class/net/w* | grep -qv '\*'; then
 		wifi=$(cat /sys/class/net/w*/operstate)
 	fi
 
-	if compgen -G "/sys/class/net/tun*"> /dev/null; then
+	if printf "%s" /sys/class/net/tun* | grep -qv '\*'; then
 		tun=$(cat /sys/class/net/tun*/operstate)
 	fi
 	
@@ -39,7 +38,7 @@ bar-network() {
 bar-battery() {
 	
 	output=""
-	if compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
+	if printf "%s" /sys/class/power_supply/BAT* | grep -qv '\*'; then
 	
 		battery=$(cat /sys/class/power_supply/BAT0/capacity)
 		status=$(cat /sys/class/power_supply/BAT0/status)
