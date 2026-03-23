@@ -40,23 +40,27 @@ bar-battery() {
 	output=""
 	if printf "%s" /sys/class/power_supply/BAT* | grep -qv '\*'; then
 	
-		battery=$(cat /sys/class/power_supply/BAT0/capacity)
-		status=$(cat /sys/class/power_supply/BAT0/status)
-		pluggedin=$(cat /sys/class/power_supply/A*/online)
+    	lap_battery_id=$(upower -e | grep 'BAT' | head -n 1)
+    	lap_battery_info=$(upower -i "$lap_battery_id")
+    	lap_battery_percentage=$(printf "%s\n" "$lap_battery_info" | awk '/percentage/ {print $2}')
+		lap_battery_percentage=${lap_battery_percentage%\%}
+    	lap_battery_state=$(printf "%s\n" "$lap_battery_info" | awk '/state/ {print $2}')
 
-		if [ "$pluggedin" = "1" ]; then
-			output=$output""
-		fi
+
+		case "$lap_battery_state" in
+			charging) output=$output"󱐋" ;; 
+			fully-charged) output=$output"" ;;
+		esac
 		
-		if [ "$status" = "Discharging" ]; then
-			if [ "$battery" -gt 66 ]; then
+		if [ "$lap_battery_state" = "discharging" ] || [ "$lap_battery_state" = "empty" ]; then
+			if [ "$lap_battery_percentage" -gt 66 ]; then
 				output=$output"󱊣"
-			elif [ "$battery" -gt 33 ]; then
+			elif [ "$lap_battery_percentage" -gt 33 ]; then
 				output=$output"󱊢"
-			elif [ "$battery" -gt 20 ]; then
+			elif [ "$lap_battery_percentage" -gt 20 ]; then
 				output=$output"󱊡"
 			else
-				dunstify -u critical 'BATTERY CRITICAL'
+				dunstify -u critical ' LOW BATTERY'
 				output=$output"󰂎"
 			fi
 		fi
@@ -64,15 +68,15 @@ bar-battery() {
 		if [ "$status" = "Charging" ]; then
 			output=$output"󱐋"
 		fi
-		output="$output${battery}%"
+		output="$output${lap_battery_percentage}%"
 	fi
 
 	hsexists=$(upower -e | grep headset | head -n 1)
 	if [ -n "$hsexists" ]; then
-		headsetpower=$(upower -i "$hsexists" | grep percentage | awk '{print $2}')
+		headsetpower=$(upower -i "$hsexists" | awk '/percentage/ {print $2}')
 		headsetpower=${headsetpower%\%}
-		if [ "$headsetpower" -lt 21 ]; then
-			dunstify -u critical 'BATTERY CRITICAL'
+		if [ "$headsetpower" -lt 20 ]; then
+			dunstify -u critical '󰋎 LOW BATTERY'
 			output="$output 󰋎${headsetpower}%"
 		else
 			output="$output 󰋎${headsetpower}%"
