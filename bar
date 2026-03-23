@@ -44,6 +44,7 @@ bar-battery() {
     	lap_battery_info=$(upower -i "$lap_battery_id")
     	lap_battery_percentage=$(printf "%s\n" "$lap_battery_info" | awk '/percentage/ {print $2}')
 		lap_battery_percentage=${lap_battery_percentage%\%}
+		lap_battery_percentage=$(printf "%.0f" "${lap_battery_percentage}")
     	lap_battery_state=$(printf "%s\n" "$lap_battery_info" | awk '/state/ {print $2}')
 
 
