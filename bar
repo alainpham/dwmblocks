@@ -50,13 +50,16 @@ bar-battery() {
 
 
 		case "$lap_battery_state" in
-			charging) output=$output"󱐋" ;; 
+			charging) 
+				output=$output"󱐋"  
+				lap_battery_timeleft=$(printf "%s\n" "$lap_battery_info" | awk '/time to full/ {print " " $4 substr($5,1,1)}')
+				;; 
 			fully-charged) output=$output"" ;;
 		esac
 		
 		if [ "$lap_battery_state" = "discharging" ] || [ "$lap_battery_state" = "empty" ]; then
 			
-			lap_battery_timeleft=$(printf "%s\n" "$lap_battery_info" | awk '/time to empty/ {print " " $4 $5}')
+			lap_battery_timeleft=$(printf "%s\n" "$lap_battery_info" | awk '/time to empty/ {print " " $4 substr($5,1,1)}')
 			
 			if [ "$lap_battery_percentage" -gt 66 ]; then
 				output=$output"󱊣"
@@ -70,9 +73,6 @@ bar-battery() {
 			fi
 		fi
 		
-		if [ "$status" = "Charging" ]; then
-			output=$output"󱐋"
-		fi
 		output="$output${lap_battery_percentage}%${lap_battery_timeleft}"
 	fi
 
