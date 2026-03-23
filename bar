@@ -46,6 +46,7 @@ bar-battery() {
 		lap_battery_percentage=${lap_battery_percentage%\%}
 		lap_battery_percentage=$(printf "%.0f" "${lap_battery_percentage}")
     	lap_battery_state=$(printf "%s\n" "$lap_battery_info" | awk '/state/ {print $2}')
+		lap_battery_timeleft=""
 
 
 		case "$lap_battery_state" in
@@ -54,6 +55,9 @@ bar-battery() {
 		esac
 		
 		if [ "$lap_battery_state" = "discharging" ] || [ "$lap_battery_state" = "empty" ]; then
+			
+			lap_battery_timeleft=$(printf "%s\n" "$lap_battery_info" | awk '/time to empty/ {print " " $4 $5}')
+			
 			if [ "$lap_battery_percentage" -gt 66 ]; then
 				output=$output"󱊣"
 			elif [ "$lap_battery_percentage" -gt 33 ]; then
@@ -61,7 +65,7 @@ bar-battery() {
 			elif [ "$lap_battery_percentage" -gt 20 ]; then
 				output=$output"󱊡"
 			else
-				dunstify -u critical ' LOW BATTERY'
+				dunstify -u critical " LOW BATTERY"
 				output=$output"󰂎"
 			fi
 		fi
@@ -69,7 +73,7 @@ bar-battery() {
 		if [ "$status" = "Charging" ]; then
 			output=$output"󱐋"
 		fi
-		output="$output${lap_battery_percentage}%"
+		output="$output${lap_battery_percentage}%${lap_battery_timeleft}"
 	fi
 
 	hsexists=$(upower -e | grep headset | head -n 1)
