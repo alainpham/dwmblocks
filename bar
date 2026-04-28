@@ -135,6 +135,7 @@ bar-volume() {
 	output=""
 
 	source $(which asndenv)
+	server_name=$(pactl info | grep "Server Name")
 
 	if echo "$server_name" | grep -qi "pipewire"; then
 		cspeaker_sink_input_id=$(
