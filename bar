@@ -136,14 +136,35 @@ bar-volume() {
 
 	source $(which asndenv)
 
-	cspeaker_module_id=$(pactl list short modules | grep "sink_name=from-desktop" | awk '{print $1}')
-	cspeaker_sink_input_id=$(pactl -f json list sink-inputs | jq -r ".[] | select(.owner_module == \"$cspeaker_module_id\") | .sink")
-	cspeaker_name=$(pactl -f json list sinks | jq -r ".[] | select(.index == $cspeaker_sink_input_id ) | .name ")
-	
-	mic_module_id=$(pactl list short modules | grep "source_name=mic01-processed" | awk '{print $1}')
-	mic_source_input_id=$(pactl -f json list source-outputs | jq -r ".[] | select(.owner_module == \"$mic_module_id\") | .source")
-	mic_name=$(pactl -f json list sources | jq -r ".[] | select(.index == $mic_source_input_id ) | .name ")
+	if echo "$server_name" | grep -qi "pipewire"; then
+		cspeaker_sink_input_id=$(
+			pw-link -l | awk '
+			/^from-desktop:/ {f=1; next}
+			/^[^[:space:]]/  {f=0}
+			f && /\|->/ {print $2}
+			' | cut -d: -f1 | sort -u | grep -E '^(alsa_output|bluez_output)'
+		)
+		cspeaker_name=$cspeaker_sink_input_id
 
+		mic_source_input_id=$(
+			pw-link -l | awk '
+			/^mic01-processed:/ {f=1; next}
+			/^[^[:space:]]/     {f=0}
+			f && /\|<-/ {print $2}
+			' | cut -d: -f1 | sort -u | grep -E '^(alsa_input|bluez_input)'
+		)
+		mic_name=$mic_source_input_id
+
+	else
+		cspeaker_module_id=$(pactl list short modules | grep "sink_name=from-desktop" | awk '{print $1}')
+		cspeaker_sink_input_id=$(pactl -f json list sink-inputs | jq -r ".[] | select(.owner_module == \"$cspeaker_module_id\") | .sink")
+		cspeaker_name=$(pactl -f json list sinks | jq -r ".[] | select(.index == $cspeaker_sink_input_id ) | .name ")
+		
+		mic_module_id=$(pactl list short modules | grep "source_name=mic01-processed" | awk '{print $1}')
+		mic_source_input_id=$(pactl -f json list source-outputs | jq -r ".[] | select(.owner_module == \"$mic_module_id\") | .source")
+		mic_name=$(pactl -f json list sources | jq -r ".[] | select(.index == $mic_source_input_id ) | .name ")
+	fi
+	
 	speakervol=$(pactl get-sink-volume $cspeaker_sink_input_id)
 	micvol=$(pactl get-source-volume $mic_source_input_id)
 	notconfigured=$?
